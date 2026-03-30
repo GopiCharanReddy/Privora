@@ -12,7 +12,6 @@ if(!DATABASE_URL) {
 export const db = drizzle({ 
   connection: { 
     connectionString: DATABASE_URL,
-    ssl: true
   },
   schema
 });

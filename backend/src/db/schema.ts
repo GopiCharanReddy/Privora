@@ -5,25 +5,26 @@ export const users = pgTable("users", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull(),
   created_at: timestamp().defaultNow().notNull(),
-  updated_at: timestamp().$defaultFn(() => new Date())
+  updated_at: timestamp().defaultNow().$onUpdate(() => new Date())
 });
 
 export const rooms = pgTable("rooms", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   slug: varchar().unique().notNull(),
-  userId: integer('user_id'),
+  userId: integer('userId').references(() => users.id),
   isDeleted: boolean('deleted').notNull().default(false),
   created_at: timestamp().defaultNow().notNull(),
-  updated_at: timestamp().notNull()
+  updated_at: timestamp().defaultNow().$onUpdate(() => new Date())
 });
 
 export const messages = pgTable("messages", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   message: varchar().notNull(),
-  roomId: integer('room_id'),
+  roomId: integer('roomId').references(() => rooms.id),
+  userId: integer('userId').references(() => users.id),
   isDeleted: boolean('deleted').notNull().default(false),
   created_at: timestamp().defaultNow().notNull(),
-  updated_at: timestamp().notNull()
+  updated_at: timestamp().defaultNow().$onUpdate(() => new Date())
 })
 
 export const userRelations = relations(users, ({ many }) => ({
@@ -43,5 +44,9 @@ export const messageRelations = relations(messages, ({ one }) => ({
   room: one(rooms, {
     fields: [messages.roomId],
     references: [rooms.id]
+  }),
+  user: one(users, {
+    fields: [messages.userId],
+    references: [users.id]
   })
 }))
