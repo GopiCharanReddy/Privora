@@ -20,6 +20,7 @@ export const rooms = pgTable("rooms", {
 export const messages = pgTable("messages", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   message: varchar().notNull(),
+  senderName: varchar({ length: 255 }).default("Anonymous"),
   roomId: integer('roomId').references(() => rooms.id),
   userId: integer('userId').references(() => users.id),
   isDeleted: boolean('deleted').notNull().default(false),
