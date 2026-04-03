@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react"
 import { useParams } from "next/navigation"
+import axios from "axios"
 import { WebSocketProvider, useWebSocket } from "@/hooks/WebSocketContext"
 import { RoomHeader } from "@/components/room/RoomHeader"
 import { MessageBubble, type Message } from "@/components/room/MessageBubble"
@@ -27,15 +28,16 @@ function RoomChat({ slug, username }: { slug: string; username: string }) {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch(
-          `${BACKEND_URL}/api/v1/messages/message/${slug}`
+        const res = await axios.get(
+          `${BACKEND_URL}/api/v1/messages/message/${slug}`,
+          { validateStatus: () => true }
         )
-        if (!res.ok) {
+        if (res.status >= 400) {
           setRoomError("Room not found or has been deleted.")
           setLoading(false)
           return
         }
-        const data = await res.json()
+        const data = res.data
         const mapped: Message[] = (
           data as Array<{
             id: number

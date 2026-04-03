@@ -1,23 +1,23 @@
-import { useEffect, useRef, useState } from 'react';
-import Header from './Header'
-import { useWebSocket } from '../hooks/WebSocketContext';
+import { useEffect, useRef, useState } from "react"
+import Header from "./Header"
+import { useWebSocket } from "../hooks/WebSocketContext"
 
 type Message = {
-  text: string,
+  text: string
   sender: "me" | "them"
 }
 type ChatProps = {
-  roomId: string | null,
-  initialUserCount: number;
+  roomId: string | null
+  initialUserCount: number
 }
 const Chat = ({ roomId, initialUserCount }: ChatProps) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([])
   const { socket, clientId, lastMessage } = useWebSocket()
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null)
   const [userCount, setUserCount] = useState(initialUserCount)
 
   useEffect(() => {
-    if (!lastMessage) return;
+    if (!lastMessage) return
     const lastMessageFunction = async () => {
       if (lastMessage) {
         console.log(lastMessage)
@@ -25,56 +25,84 @@ const Chat = ({ roomId, initialUserCount }: ChatProps) => {
         if (count !== undefined) {
           setUserCount(count)
         }
-        if (lastMessage.type === 'chatMessage' || lastMessage.type === 'message') {
+        if (
+          lastMessage.type === "chatMessage" ||
+          lastMessage.type === "message"
+        ) {
           if (lastMessage.senderId !== clientId)
-            setMessages(prevMessages => [...prevMessages, { text: (lastMessage.message ?? '') as string, sender: "them" }])
-        } else if (lastMessage.type === 'joined' || lastMessage.type === 'userLeft') {
+            setMessages((prevMessages) => [
+              ...prevMessages,
+              { text: (lastMessage.message ?? "") as string, sender: "them" },
+            ])
+        } else if (
+          lastMessage.type === "joined" ||
+          lastMessage.type === "userLeft"
+        ) {
           if (lastMessage.senderId !== clientId && lastMessage.senderId)
-            setMessages(prevMessage => [...prevMessage, { text: (lastMessage.message ?? '') as string, sender: "them" }])
+            setMessages((prevMessage) => [
+              ...prevMessage,
+              { text: (lastMessage.message ?? "") as string, sender: "them" },
+            ])
         }
       }
     }
-    lastMessageFunction();
+    lastMessageFunction()
   }, [lastMessage, clientId])
 
   const handleClick = (e?: React.FormEvent) => {
     if (e) e.preventDefault()
-    const message = inputRef.current?.value;
-    if (!message) return;
-    setMessages(prevMessage => [...prevMessage, { text: message, sender: "me" }]);
+    const message = inputRef.current?.value
+    if (!message) return
+    setMessages((prevMessage) => [
+      ...prevMessage,
+      { text: message, sender: "me" },
+    ])
     if (socket) {
-      socket.send(JSON.stringify({
-        type: 'chat',
-        payload: {
-          message,
-          roomId: roomId
-        }
-      }));
+      socket.send(
+        JSON.stringify({
+          type: "chat",
+          payload: {
+            message,
+            roomId: roomId,
+          },
+        })
+      )
     }
     if (inputRef.current) {
-      inputRef.current.value = '';
+      inputRef.current.value = ""
     }
   }
   return (
-    <div className='flex flex-col gap-y-3 sm:gap-y-4 border border-neutral-800 p-3 sm:p-4 rounded-lg sm:w-3xl m-auto'>
+    <div className="m-auto flex flex-col gap-y-3 rounded-lg border border-neutral-800 p-3 sm:w-3xl sm:gap-y-4 sm:p-4">
       <Header />
-      <div className='bg-neutral-800 p-2 sm:p-3 rounded-lg flex flex-col sm:flex-row justify-between gap-1 sm:gap-0'>
-        <div className='text-sm sm:text-base break-all'>{`Room Code: ${roomId}`}</div>
-        <div className='text-sm sm:text-base'>{`Users ${userCount}/2`}</div>
+      <div className="flex flex-col justify-between gap-1 rounded-lg bg-neutral-800 p-2 sm:flex-row sm:gap-0 sm:p-3">
+        <div className="text-sm break-all sm:text-base">{`Room Code: ${roomId}`}</div>
+        <div className="text-sm sm:text-base">{`Users ${userCount}/2`}</div>
       </div>
-      <div className='border border-neutral-800 rounded-lg w-full p-3 sm:p-4 h-64 sm:h-80 lg:h-94 flex flex-col overflow-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-500/40 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-slate-500'>
+      <div className="flex h-64 w-full flex-col overflow-auto rounded-lg border border-neutral-800 p-3 sm:h-80 sm:p-4 lg:h-94 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-500/40 [&::-webkit-scrollbar-thumb:hover]:bg-slate-500 [&::-webkit-scrollbar-track]:bg-transparent">
         {messages.map((message, index: number) => (
           <div
-            className={`p-3 sm:p-4 mb-2 rounded-lg w-fit max-w-[70%] sm:max-w-80 break-words text-sm sm:text-base shadow-sm ${message.sender === 'me' ? 'bg-white text-black self-end ml-auto' : 'bg-neutral-800 text-white self-start mr-auto'}`}
+            className={`mb-2 w-fit max-w-[70%] rounded-lg p-3 text-sm break-words shadow-sm sm:max-w-80 sm:p-4 sm:text-base ${message.sender === "me" ? "ml-auto self-end bg-white text-black" : "mr-auto self-start bg-neutral-800 text-white"}`}
             key={index}
           >
             {message.text}
           </div>
         ))}
       </div>
-      <form onSubmit={handleClick} className='flex flex-col sm:flex-row gap-2'>
-        <input ref={inputRef} id='message' type="text" placeholder='Type a message' className='bg-neutral-900 text-white placeholder-neutral-400 border-neutral-800 p-2 sm:p-3 rounded-lg focus:border-white border-2 focus:border-2 w-full sm:w-[80%] text-sm sm:text-base focus:outline-none' />
-        <button type='submit' className='bg-white text-black font-semibold p-2 sm:p-3 rounded-lg px-4 sm:px-12 tracking-wider text-sm sm:text-base w-full sm:w-auto mt-2'>Send</button>
+      <form onSubmit={handleClick} className="flex flex-col gap-2 sm:flex-row">
+        <input
+          ref={inputRef}
+          id="message"
+          type="text"
+          placeholder="Type a message"
+          className="w-full rounded-lg border-2 border-neutral-800 bg-neutral-900 p-2 text-sm text-white placeholder-neutral-400 focus:border-2 focus:border-white focus:outline-none sm:w-[80%] sm:p-3 sm:text-base"
+        />
+        <button
+          type="submit"
+          className="mt-2 w-full rounded-lg bg-white p-2 px-4 text-sm font-semibold tracking-wider text-black sm:w-auto sm:p-3 sm:px-12 sm:text-base"
+        >
+          Send
+        </button>
       </form>
     </div>
   )
