@@ -1,32 +1,47 @@
-import { Redis } from 'ioredis';
+import { Redis } from "ioredis"
+import "dotenv/config"
 
-const redisURL = process.env.REDIS_URL || 'redis://localhost:6379';
+const redisURL = process.env.REDIS_URL!
+const password = process.env.REDIS_PASSWORD || ""
 
-const createRedisClient = (clientName: string) => {
-  const client = new Redis(redisURL, {
+let clientInstance: Redis
+let publisherInstance: Redis
+let subscriberInstance: Redis
+
+const createRedisClient = (name: string) => {
+  const instance = new Redis(redisURL, {
+    password,
     maxRetriesPerRequest: null,
-  });
+  })
 
-  client.on('connect', () => {
-    console.log(`Redis ${clientName} connected successfully.`);
-  });
+  instance.on("connect", () => {
+    console.log(`Redis ${name} connected successfully.`)
+  })
 
-  client.on('error', (error) => {
-    console.error(`Redis ${clientName} connection error: ${error}`);
-  });
+  instance.on("error", (error) => {
+    console.error(`Redis ${name}connection Error: ${error}`)
+  })
 
-  return client;
+  return instance
 }
 
-
 export const createRedisConnection = () => {
-  return createRedisClient('client');
+  if (!clientInstance) {
+    clientInstance = createRedisClient("client")
+  }
+  return clientInstance
 }
 
 export const createPublisher = () => {
-  return createRedisClient('publisher');
-};
+  if (!publisherInstance) {
+    publisherInstance = createRedisClient("publisher")
+  }
+  return publisherInstance
+}
 
 export const createSubscriber = () => {
-  return createRedisClient('subscriber');
-};
+  if (!subscriberInstance) {
+    subscriberInstance = createRedisClient("subscriber")
+  }
+  return subscriberInstance
+}

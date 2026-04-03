@@ -1,28 +1,29 @@
-import { Worker } from 'bullmq';
-import { createRedisConnection } from '../redis.ts';
-import { db } from '../../db/setup.ts';
-import { messages } from '../../db/schema.ts';
+import { Worker } from "bullmq"
+import { createRedisConnection } from "../redis.ts"
+import { db } from "../../db/setup.ts"
+import { messages } from "../../db/schema.ts"
+import "dotenv/config"
 
 const chatWorker = new Worker(
-  'chatQueue',
-  async job => {
-    const { userId, roomId, senderName, message } = job.data;
+  "chatQueue",
+  async (job) => {
+    const { userId, roomId, senderName, message } = job.data
 
     // roomId is the slug
-    let resolvedRoomId: number | undefined;
+    let resolvedRoomId: number | undefined
 
-    if (typeof roomId === 'string') {
+    if (typeof roomId === "string") {
       const room = await db.query.rooms.findFirst({
         where: (rooms, { eq }) => eq(rooms.slug, roomId),
-      });
-      resolvedRoomId = room?.id;
+      })
+      resolvedRoomId = room?.id
     } else {
-      resolvedRoomId = roomId;
+      resolvedRoomId = roomId
     }
 
     if (!resolvedRoomId) {
-      console.error(`Job ${job.id}: room not found for slug ${roomId}`);
-      return;
+      console.error(`Job ${job.id}: room not found for slug ${roomId}`)
+      return
     }
 
     await db.insert(messages).values({
@@ -30,19 +31,19 @@ const chatWorker = new Worker(
       senderName: senderName ?? "Anonymous",
       roomId: resolvedRoomId,
       userId,
-    });
+    })
 
-    console.log(`Job ${job.id} saved message to DB`);
+    console.log(`Job ${job.id} saved message to DB`)
   },
   {
-    connection: createRedisConnection()
-  },
-);
+    connection: createRedisConnection(),
+  }
+)
 
-chatWorker.on('completed', job => {
-  console.log(`${job.id} has completed.`);
-});
+chatWorker.on("completed", (job) => {
+  console.log(`${job.id} has completed.`)
+})
 
-chatWorker.on('failed', (job, err) => {
-  console.log(`${job?.id} has failed with ${err.message}`);
-});
+chatWorker.on("failed", (job, err) => {
+  console.log(`${job?.id} has failed with ${err.message}`)
+})
