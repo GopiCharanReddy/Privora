@@ -34,12 +34,13 @@
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "moduleDetection": "force",
-    // "skipLibCheck": true,
+    "skipLibCheck": true
   },
   "include": [
     "src/**/*"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist"
   ]
 }
