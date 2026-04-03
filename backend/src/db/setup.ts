@@ -1,17 +1,9 @@
-import 'dotenv/config';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import * as schema from './schema.ts';
+import { config } from "dotenv"
+import { drizzle } from "drizzle-orm/postgres-js"
+import postgres from "postgres"
+import * as schema from "./schema.ts"
 
-const DATABASE_URL = process.env.DATABASE_URL;
+config({ path: ".env" })
 
-if(!DATABASE_URL) {
-  console.error('Database url not found.');
-}
-
-// You can specify any property from the node-postgres connection options
-export const db = drizzle({ 
-  connection: { 
-    connectionString: DATABASE_URL,
-  },
-  schema
-});
+const client = postgres(process.env.DATABASE_URL!)
+export const db = drizzle({ client, schema })
