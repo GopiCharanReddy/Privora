@@ -11,7 +11,7 @@ import cors from "cors"
 dotenv.config()
 
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin: "https://privora.chaxan.in",
   credentials: true,
 }
 
