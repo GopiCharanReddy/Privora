@@ -36,9 +36,13 @@ export function CreateRoomModal({ open, onClose }: CreateRoomModalProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
+  const handleClose = () => {
+    setError("");
+    setUsername("");
+    onClose();
+  }
   useEffect(() => {
     if (open) {
-      setError("")
       setTimeout(() => inputRef.current?.focus(), 80)
     }
   }, [open])
@@ -65,7 +69,7 @@ export function CreateRoomModal({ open, onClose }: CreateRoomModalProps) {
       }
       // Store username in sessionStorage keyed by slug
       sessionStorage.setItem(`user_${data.slug}`, name)
-      onClose()
+      handleClose();
       router.push(`/room/${data.slug}`)
     } catch {
       setError("Network error. Is the server running?")

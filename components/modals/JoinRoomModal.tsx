@@ -36,15 +36,23 @@ export function JoinRoomModal({
 }: JoinRoomModalProps) {
   const [username, setUsername] = useState("")
   const [roomId, setRoomId] = useState(prefillSlug ?? "")
+  const [prevSlug, setPrevSlug] = useState(prefillSlug);
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
+  const handleClose = () => {
+    setError("");
+    setUsername("");
+    onClose();
+  }
+  if(prefillSlug !== prevSlug) {
+    setRoomId(prefillSlug || "");
+    setPrevSlug(prefillSlug);
+  }
   useEffect(() => {
     if (open) {
-      setError("")
-      if (prefillSlug) setRoomId(prefillSlug)
       setTimeout(() => inputRef.current?.focus(), 80)
     }
   }, [open, prefillSlug])
@@ -75,7 +83,7 @@ export function JoinRoomModal({
         return
       }
       sessionStorage.setItem(`user_${slug}`, name)
-      onClose()
+      handleClose();
       // If we were pre-filled with a slug (shared-link), we're already on the room page
       if (!prefillSlug) {
         router.push(`/room/${slug}`)

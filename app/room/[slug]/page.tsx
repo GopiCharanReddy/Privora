@@ -214,20 +214,20 @@ export default function RoomPage() {
       ? params.slug
       : ((params.slug as string[])?.[0] ?? "")
 
-  const [username, setUsername] = useState<string | null>(null)
-  const [showJoinModal, setShowJoinModal] = useState(false)
-
-  useEffect(() => {
-    if (!slug) return
-    const stored = sessionStorage.getItem(`user_${slug}`)
-    if (stored) {
-      setUsername(stored)
-    } else {
-      // No stored name — open the join modal with slug pre-filled
-      setShowJoinModal(true)
+  const [username, setUsername] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem(`user_${slug}`)
     }
-  }, [slug])
+    return null
+  });
 
+  const [showJoinModal, setShowJoinModal] = useState(() => {
+    if (typeof window !== "undefined") {
+      return !sessionStorage.getItem(`user_${slug}`)
+    }
+    return false // Default for SSR
+  });
+  
   // After the modal completes (user wrote their name and joined), update state
   const handleJoinClose = useCallback(() => {
     const stored = sessionStorage.getItem(`user_${slug}`)
