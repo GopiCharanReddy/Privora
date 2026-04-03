@@ -13,6 +13,7 @@ export const rooms = pgTable("rooms", {
   slug: varchar().unique().notNull(),
   userId: integer('userId').references(() => users.id),
   isDeleted: boolean('deleted').notNull().default(false),
+  count: integer('count').default(0),
   created_at: timestamp().defaultNow().notNull(),
   updated_at: timestamp().defaultNow().$onUpdate(() => new Date())
 });

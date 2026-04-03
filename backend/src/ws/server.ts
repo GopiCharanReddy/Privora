@@ -1,6 +1,6 @@
 import type { Server } from 'http';
 import WebSocket, { WebSocketServer } from "ws";
-import { handleIncomingMessages } from "../controllers/message.controller.ts";
+import { handleIncomingMessages, handleClientLeave } from "../controllers/message.controller.ts";
 import { createPublisher, createSubscriber } from "./redis.ts";
 
 const publisher = createPublisher();
@@ -14,7 +14,7 @@ subscriber.subscribe('COMPUTE_UPDATES', (err) => {
 
 subscriber.on("message", (channel, chatMessage) => {
   if (channel === "COMPUTE_UPDATES") {
-    const { message, userId, senderName, slug } = JSON.parse(chatMessage);
+    const { type = "message", message, userId, senderName, slug, userCount } = JSON.parse(chatMessage);
 
     clients.forEach((clientData, ws) => {
       if (
@@ -22,7 +22,7 @@ subscriber.on("message", (channel, chatMessage) => {
         ws.readyState === WebSocket.OPEN
       ) {
         ws.send(
-          JSON.stringify({ type: "message", slug, userId, senderName, message })
+          JSON.stringify({ type, slug, userId, senderName, message, userCount })
         );
       }
     });
@@ -48,9 +48,12 @@ export const setupWs = (server: Server) => {
       }
     });
 
-    ws.on("close", () => {
+    ws.on("close", async () => {
       const clientData = clients.get(ws);
       console.log(`Client ${clientData?.id} (${clientData?.name ?? "anon"}) disconnected.`);
+      if (clientData?.slug) {
+        await handleClientLeave(clientData.slug, publisher, clientData);
+      }
       clients.delete(ws);
     });
 

@@ -3,6 +3,8 @@ import { chatQueue } from "../ws/queues/chat.queue.ts";
 import type { Request, Response } from "express";
 import { db } from "../db/setup.ts";
 import type { RedisClient } from "bullmq";
+import { sql, eq, and } from "drizzle-orm";
+import { rooms } from "../db/schema.ts";
 
 interface handleIncomingMessagesI {
   ws: WebSocket;
@@ -38,6 +40,28 @@ export const handleIncomingMessages = async ({
     console.log(
       `Client ${clientData?.id} (${clientData?.name ?? "anon"}) has joined room: ${slug}`
     );
+
+    // Increment room user count in DB
+    try {
+      const updatedRooms = await db
+        .update(rooms)
+        .set({ count: sql`${rooms.count} + 1` })
+        .where(and(eq(rooms.slug, slug), eq(rooms.isDeleted, false)))
+        .returning({ count: rooms.count });
+      
+      const newCount = updatedRooms[0]?.count ?? 0;
+      
+      await publisher.publish('COMPUTE_UPDATES', JSON.stringify({
+        type: 'user_joined',
+        slug,
+        userId: clientData?.id,
+        senderName: "System",
+        message: `${name ?? "Anonymous"} joined the room`,
+        userCount: newCount
+      }));
+    } catch (err) {
+      console.error("[join_room] Failed to increment room count:", err);
+    }
     return;
   }
 
@@ -54,6 +78,7 @@ export const handleIncomingMessages = async ({
 
     try {
       await publisher.publish('COMPUTE_UPDATES', JSON.stringify({
+        type: "message",
         slug,
         userId: clientData.id,
         senderName,
@@ -69,6 +94,47 @@ export const handleIncomingMessages = async ({
     } catch (error) {
       console.error("Error: ", error);
     }
+  }
+};
+
+export const handleClientLeave = async (
+  slug: string, 
+  publisher: RedisClient,
+  clientData: { id: string; name?: string }
+): Promise<void> => {
+  try {
+    // Decrement count, but never go below 0
+    const updatedRooms = await db
+      .update(rooms)
+      .set({ count: sql`GREATEST(${rooms.count} - 1, 0)` })
+      .where(and(eq(rooms.slug, slug), eq(rooms.isDeleted, false)))
+      .returning({ count: rooms.count });
+      
+    const newCount = updatedRooms[0]?.count ?? 0;
+
+    await publisher.publish('COMPUTE_UPDATES', JSON.stringify({
+      type: 'user_left',
+      slug,
+      userId: clientData.id,
+      senderName: "System",
+      message: `${clientData.name ?? "Anonymous"} left the room`,
+      userCount: newCount
+    }));
+
+    // Re-fetch to check if the room is now empty
+    const room = await db.query.rooms.findFirst({
+      where: (r, { eq: eqFn }) => eqFn(r.slug, slug),
+    });
+
+    if (room && !room.isDeleted && (room.count ?? 0) <= 0) {
+      await db
+        .update(rooms)
+        .set({ isDeleted: true })
+        .where(and(eq(rooms.slug, slug), eq(rooms.isDeleted, false)));
+      console.log(`[room] Room "${slug}" is now empty — marked as deleted.`);
+    }
+  } catch (err) {
+    console.error("[leave_room] Failed to update room on disconnect:", err);
   }
 };
 
