@@ -1,18 +1,11 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { BackgroundLines } from "@/components/ui/background-lines";
-import { CreateRoomModal } from "@/components/modals/CreateRoomModal";
-import { JoinRoomModal } from "@/components/modals/JoinRoomModal";
-import * as motion from "motion/react-client";
-import {
-  Lock,
-  Zap,
-  Users,
-  Plus,
-  LogIn,
-  Trash2,
-} from "lucide-react";
+import { useState } from "react"
+import { BackgroundLines } from "@/components/ui/background-lines"
+import { CreateRoomModal } from "@/components/modals/CreateRoomModal"
+import { JoinRoomModal } from "@/components/modals/JoinRoomModal"
+import * as motion from "motion/react-client"
+import { Lock, Zap, Users, Plus, LogIn, Trash2 } from "lucide-react"
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -21,44 +14,44 @@ const fadeUp = {
     y: 0,
     transition: { delay: i * 0.1, duration: 0.5, ease: "easeOut" as const },
   }),
-};
+}
 
 const features = [
   {
-    icon: <Trash2 className="w-5 h-5" />,
+    icon: <Trash2 className="h-5 w-5" />,
     title: "Auto-Destruct",
     description: "Rooms vanish the moment everyone leaves. Zero footprint.",
   },
   {
-    icon: <Lock className="w-5 h-5" />,
+    icon: <Lock className="h-5 w-5" />,
     title: "No Accounts",
     description: "Jump in with just a username. No sign-ups, no passwords.",
   },
   {
-    icon: <Zap className="w-5 h-5" />,
+    icon: <Zap className="h-5 w-5" />,
     title: "Real-Time",
     description: "WebSocket-powered instant delivery with live updates.",
   },
   {
-    icon: <Users className="w-5 h-5" />,
+    icon: <Users className="h-5 w-5" />,
     title: "Private Rooms",
     description: "Share a slug to invite. No one else gets in.",
   },
-];
+]
 
 export default function HomePage() {
-  const [showCreate, setShowCreate] = useState(false);
-  const [showJoin, setShowJoin] = useState(false);
+  const [showCreate, setShowCreate] = useState(false)
+  const [showJoin, setShowJoin] = useState(false)
 
   return (
     <>
-      <BackgroundLines className="min-h-screen flex flex-col items-center justify-center bg-background">
+      <BackgroundLines className="flex min-h-screen flex-col items-center justify-center bg-background">
         {/* Radial glow overlay */}
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="w-[600px] h-[600px] rounded-full bg-violet-600/5 blur-3xl" />
+          <div className="h-[600px] w-[600px] rounded-full bg-violet-600/5 blur-3xl" />
         </div>
 
-        <div className="relative z-10 flex flex-col items-center text-center px-4 max-w-3xl mx-auto gap-8">
+        <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center gap-8 px-4 text-center">
           {/* Badge */}
           <motion.div
             custom={0}
@@ -66,8 +59,8 @@ export default function HomePage() {
             initial="hidden"
             animate="visible"
           >
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-300 text-xs font-medium tracking-widest uppercase">
-              <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+            <span className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-xs font-medium tracking-widest text-violet-300 uppercase">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-violet-400" />
               Secure · Private · Anonymous
             </span>
           </motion.div>
@@ -80,11 +73,12 @@ export default function HomePage() {
             animate="visible"
             className="flex flex-col gap-3"
           >
-            <h1 className="text-6xl sm:text-7xl lg:text-8xl font-extrabold tracking-tight leading-none">
+            <h1 className="text-6xl leading-none font-extrabold tracking-tight sm:text-7xl lg:text-8xl">
               <span className="gradient-text">Privora</span>
             </h1>
-            <p className="text-muted-foreground text-lg sm:text-xl font-light tracking-wide">
-              Private rooms that disappear when you&apos;re done. <br className="hidden sm:block" />
+            <p className="text-lg font-light tracking-wide text-muted-foreground sm:text-xl">
+              Private rooms that disappear when you&apos;re done.{" "}
+              <br className="hidden sm:block" />
               No trace. No history. Just conversation.
             </p>
           </motion.div>
@@ -95,22 +89,22 @@ export default function HomePage() {
             variants={fadeUp}
             initial="hidden"
             animate="visible"
-            className="flex flex-col sm:flex-row gap-3 w-full max-w-sm"
+            className="flex w-full max-w-sm flex-col gap-3 sm:flex-row"
           >
             <button
               id="create-room-btn"
               onClick={() => setShowCreate(true)}
-              className="group relative flex-1 flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-xl font-semibold text-sm tracking-wide overflow-hidden transition-all duration-200 bg-violet-600 hover:bg-violet-500 text-white glow-violet-sm hover:glow-violet active:scale-[0.98]"
+              className="group glow-violet-sm hover:glow-violet relative flex flex-1 items-center justify-center gap-2.5 overflow-hidden rounded-xl bg-violet-600 px-8 py-3.5 text-sm font-semibold tracking-wide text-white transition-all duration-200 hover:bg-violet-500 active:scale-[0.98]"
             >
-              <Plus className="w-4 h-4 transition-transform group-hover:rotate-90 duration-200" />
+              <Plus className="h-4 w-4 transition-transform duration-200 group-hover:rotate-90" />
               Create Room
             </button>
             <button
               id="join-room-btn"
               onClick={() => setShowJoin(true)}
-              className="group flex-1 flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-xl font-semibold text-sm tracking-wide border border-border hover:border-violet-500/50 bg-muted/30 hover:bg-muted/60 text-foreground transition-all duration-200 active:scale-[0.98]"
+              className="group flex flex-1 items-center justify-center gap-2.5 rounded-xl border border-border bg-muted/30 px-8 py-3.5 text-sm font-semibold tracking-wide text-foreground transition-all duration-200 hover:border-violet-500/50 hover:bg-muted/60 active:scale-[0.98]"
             >
-              <LogIn className="w-4 h-4 transition-transform group-hover:translate-x-0.5 duration-200" />
+              <LogIn className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
               Join Room
             </button>
           </motion.div>
@@ -121,11 +115,13 @@ export default function HomePage() {
             variants={fadeUp}
             initial="hidden"
             animate="visible"
-            className="w-full max-w-sm flex items-center gap-4"
+            className="flex w-full max-w-sm items-center gap-4"
           >
-            <div className="flex-1 h-px bg-border" />
-            <span className="text-muted-foreground text-xs tracking-widest uppercase">Features</span>
-            <div className="flex-1 h-px bg-border" />
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-xs tracking-widest text-muted-foreground uppercase">
+              Features
+            </span>
+            <div className="h-px flex-1 bg-border" />
           </motion.div>
 
           {/* Feature cards */}
@@ -134,18 +130,22 @@ export default function HomePage() {
             variants={fadeUp}
             initial="hidden"
             animate="visible"
-            className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full"
+            className="grid w-full grid-cols-2 gap-3 sm:grid-cols-4"
           >
             {features.map((f, i) => (
               <div
                 key={i}
-                className="feature-card glass-card rounded-xl p-4 flex flex-col gap-2 text-left"
+                className="feature-card glass-card flex flex-col gap-2 rounded-xl p-4 text-left"
               >
-                <div className="w-8 h-8 rounded-lg bg-violet-500/15 border border-violet-500/20 flex items-center justify-center text-violet-400">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-violet-500/20 bg-violet-500/15 text-violet-400">
                   {f.icon}
                 </div>
-                <p className="text-xs font-semibold text-foreground">{f.title}</p>
-                <p className="text-xs text-muted-foreground leading-relaxed">{f.description}</p>
+                <p className="text-xs font-semibold text-foreground">
+                  {f.title}
+                </p>
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  {f.description}
+                </p>
               </div>
             ))}
           </motion.div>
@@ -156,5 +156,5 @@ export default function HomePage() {
       <CreateRoomModal open={showCreate} onClose={() => setShowCreate(false)} />
       <JoinRoomModal open={showJoin} onClose={() => setShowJoin(false)} />
     </>
-  );
+  )
 }
