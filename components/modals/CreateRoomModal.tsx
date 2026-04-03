@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "motion/react";
+import * as motion from "motion/react-client";
 import { useRouter } from "next/navigation";
 import { X, Plus, User, Loader2 } from "lucide-react";
 

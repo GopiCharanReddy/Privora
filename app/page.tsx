@@ -4,7 +4,7 @@ import { useState } from "react";
 import { BackgroundLines } from "@/components/ui/background-lines";
 import { CreateRoomModal } from "@/components/modals/CreateRoomModal";
 import { JoinRoomModal } from "@/components/modals/JoinRoomModal";
-import { motion } from "framer-motion";
+import * as motion from "motion/react-client";
 import {
   Lock,
   Zap,
@@ -19,7 +19,7 @@ const fadeUp = {
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.1, duration: 0.5, ease: "easeOut" },
+    transition: { delay: i * 0.1, duration: 0.5, ease: "easeOut" as const },
   }),
 };
 
@@ -68,7 +68,7 @@ export default function HomePage() {
           >
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-300 text-xs font-medium tracking-widest uppercase">
               <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
-              Ephemeral · Private · Anonymous
+              Secure · Private · Anonymous
             </span>
           </motion.div>
 

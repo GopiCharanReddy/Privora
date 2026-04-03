@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import * as motion from "motion/react-client";
 import { Trash2 } from "lucide-react";
 
 export interface Message {
     id: string;
     text: string;
-    sender: "me" | "them";
+    sender: "me" | "them" | "system";
     senderName: string;
     timestamp: Date;
     deleted?: boolean;
@@ -52,6 +52,21 @@ export function MessageBubble({ message, onDelete }: MessageBubbleProps) {
                     This message was deleted
                 </span>
             </div>
+        );
+    }
+
+    if (message.sender === "system") {
+        return (
+            <motion.div
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.18, ease: "easeOut" }}
+                className="flex items-center justify-center px-2 mb-3"
+            >
+                <div className="bg-muted/50 text-muted-foreground text-[11px] font-medium px-3 py-1 rounded-full border border-border/40">
+                    {message.text}
+                </div>
+            </motion.div>
         );
     }
 
