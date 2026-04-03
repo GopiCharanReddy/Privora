@@ -17,6 +17,7 @@ type WebSocketContextType = {
   isConnected: boolean;
   clientId: string | null;
   lastMessage: WsMessage | null;
+  userCount: number;
   sendMessage: (payload: object) => void;
 };
 
@@ -25,6 +26,7 @@ const WebSocketContext = createContext<WebSocketContextType>({
   isConnected: false,
   clientId: null,
   lastMessage: null,
+  userCount: 0,
   sendMessage: () => { },
 });
 
@@ -35,6 +37,7 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
   const [isConnected, setIsConnected] = useState(false);
   const [clientId, setClientId] = useState<string | null>(null);
   const [lastMessage, setLastMessage] = useState<WsMessage | null>(null);
+  const [userCount, setUserCount] = useState<number>(0);
   const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
@@ -52,11 +55,14 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
       try {
         const data = JSON.parse(event.data) as WsMessage;
         setLastMessage(data);
+        if (typeof data.userCount === 'number') {
+          setUserCount(data.userCount);
+        }
         if (data.type === "welcome" && data.id) {
           setClientId(data.id as string);
         }
       } catch {
-        // non-JSON message (e.g. "Websocket connection successful.")
+        // non-JSON message
       }
     };
 
@@ -81,7 +87,7 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
   }, []);
 
   return (
-    <WebSocketContext.Provider value={{ socket, isConnected, clientId, lastMessage, sendMessage }}>
+    <WebSocketContext.Provider value={{ socket, isConnected, clientId, lastMessage, userCount, sendMessage }}>
       {children}
     </WebSocketContext.Provider>
   );

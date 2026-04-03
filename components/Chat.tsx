@@ -21,20 +21,17 @@ const Chat = ({ roomId, initialUserCount }: ChatProps) => {
     const lastMessageFunction = async () => {
       if (lastMessage) {
         console.log(lastMessage)
-        const count = lastMessage.userCount || lastMessage.userCount
+        const count = lastMessage.userCount as number | undefined
         if (count !== undefined) {
           setUserCount(count)
         }
         if (lastMessage.type === 'chatMessage' || lastMessage.type === 'message') {
           if (lastMessage.senderId !== clientId)
-            setMessages(prevMessages => [...prevMessages, { text: lastMessage.message, sender: "them" }])
+            setMessages(prevMessages => [...prevMessages, { text: (lastMessage.message ?? '') as string, sender: "them" }])
         } else if (lastMessage.type === 'joined' || lastMessage.type === 'userLeft') {
           if (lastMessage.senderId !== clientId && lastMessage.senderId)
-            setMessages(prevMessage => [...prevMessage, { text: lastMessage.message, sender: "them" }])
+            setMessages(prevMessage => [...prevMessage, { text: (lastMessage.message ?? '') as string, sender: "them" }])
         }
-      }
-      if (lastMessage.payload?.userCount !== undefined) {
-        setUserCount(lastMessage.payload.userCount)
       }
     }
     lastMessageFunction();

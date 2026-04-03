@@ -2,14 +2,16 @@
 
 import { useState } from "react";
 import { Copy, Link2, Check, Wifi, WifiOff, MessageCircle } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "motion/react";
+import * as motion from "motion/react-client";
 
 interface RoomHeaderProps {
     slug: string;
     isConnected: boolean;
+    userCount: number;
 }
 
-export function RoomHeader({ slug, isConnected }: RoomHeaderProps) {
+export function RoomHeader({ slug, isConnected, userCount }: RoomHeaderProps) {
     const [copiedId, setCopiedId] = useState(false);
     const [copiedLink, setCopiedLink] = useState(false);
 
@@ -53,6 +55,14 @@ export function RoomHeader({ slug, isConnected }: RoomHeaderProps) {
                 <div className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-medium ${isConnected ? "text-emerald-400" : "text-muted-foreground"}`}>
                     {isConnected ? <Wifi className="w-3.5 h-3.5" /> : <WifiOff className="w-3.5 h-3.5" />}
                     <span className="hidden sm:block">{isConnected ? "Live" : "Offline"}</span>
+                </div>
+
+                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-medium text-muted-foreground bg-muted/40 border border-border">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
+                    </span>
+                    <span>{userCount} user{userCount !== 1 ? 's' : ''}</span>
                 </div>
 
                 <div className="w-px h-4 bg-border" />

@@ -7,7 +7,8 @@ import { RoomHeader } from "@/components/room/RoomHeader";
 import { MessageBubble, type Message } from "@/components/room/MessageBubble";
 import { ChatInput } from "@/components/room/ChatInput";
 import { JoinRoomModal } from "@/components/modals/JoinRoomModal";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "motion/react";
+import * as motion from "motion/react-client";
 import { Loader2, MessageCircleOff, AlertTriangle } from "lucide-react";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
@@ -45,7 +46,7 @@ function RoomChat({ slug, username }: { slug: string; username: string }) {
                 ).map((m) => ({
                     id: String(m.id),
                     text: m.message,
-                    sender: "them" as const,
+                    sender: m.senderName === username ? "me" : "them",
                     senderName: m.senderName ?? `User ${m.userId ?? "?"}`,
                     timestamp: new Date(m.created_at),
                     deleted: m.isDeleted,
@@ -81,6 +82,15 @@ function RoomChat({ slug, username }: { slug: string; username: string }) {
                 text: message,
                 sender: "them",
                 senderName: (lastMessage.senderName as string) ?? `User ${userId}`,
+                timestamp: new Date(),
+            };
+            setMessages((prev) => [...prev, newMsg]);
+        } else if ((type === "user_joined" || type === "user_left") && message) {
+            const newMsg: Message = {
+                id: `ws-${++msgIdRef.current}`,
+                text: message,
+                sender: "system",
+                senderName: "System",
                 timestamp: new Date(),
             };
             setMessages((prev) => [...prev, newMsg]);
@@ -177,10 +187,10 @@ function RoomChat({ slug, username }: { slug: string; username: string }) {
 
 // ─── Inner layout (uses WS context for header) ───────────────────────────────
 function RoomLayout({ slug, username }: { slug: string; username: string }) {
-    const { isConnected } = useWebSocket();
+    const { isConnected, userCount } = useWebSocket();
     return (
         <div className="flex flex-col h-screen bg-background overflow-hidden">
-            <RoomHeader slug={slug} isConnected={isConnected} />
+            <RoomHeader slug={slug} isConnected={isConnected} userCount={userCount} />
             <RoomChat slug={slug} username={username} />
         </div>
     );

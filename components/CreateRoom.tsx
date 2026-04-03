@@ -14,13 +14,14 @@ const CreateRoom = ({ onRoomCreated }: CreateRoomProps) => {
   useEffect(() => {
     if(!lastMessage) return;
     if (lastMessage && lastMessage.type === 'roomCreated') {
-      const newRoomId = lastMessage.payload.roomId
-      const initialCount = lastMessage.payload.userCount;
-      onRoomCreated(newRoomId, initialCount);
+      const payload = lastMessage.payload as { roomId: string; userCount: number } | undefined;
+      const newRoomId = payload?.roomId
+      const initialCount = payload?.userCount;
+      if (newRoomId) onRoomCreated(newRoomId, initialCount);
     }
     if(lastMessage.type === 'joined'){
-      const {roomId, userCount} = lastMessage.payload;
-      onRoomCreated(roomId, userCount);
+      const payload = lastMessage.payload as { roomId: string; userCount: number } | undefined;
+      if (payload?.roomId) onRoomCreated(payload.roomId, payload.userCount);
     }
   }, [onRoomCreated, lastMessage])
 
