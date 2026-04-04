@@ -11,12 +11,12 @@ import cors from "cors"
 dotenv.config()
 
 const corsOptions = {
-  origin: process.env.FRONTEND_URL 
+  origin: "https://privora.chaxan.in",
+  credentials: true,
 }
 
 const app = express()
 app.use(cors(corsOptions))
-app.options("*", cors(corsOptions))
 const router: express.Router = express.Router()
 const server = http.createServer(app)
 const PORT = process.env.PORT || 8080
