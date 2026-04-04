@@ -11,10 +11,7 @@ import cors from "cors"
 dotenv.config()
 
 const corsOptions = {
-  origin: ["https://privora.chaxan.in", "privora-eta.vercel.app"], 
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  origin: process.env.FRONTEND_URL 
 }
 
 const app = express()
