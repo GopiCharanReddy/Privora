@@ -14,7 +14,7 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "Privora — Private Ephemeral Chat",
+  title: "Privora",
   description:
     "Create private, ephemeral chat rooms that vanish once everyone leaves. No accounts, no history, just secure conversations.",
   keywords: ["private chat", "ephemeral", "secure", "anonymous", "real-time"],

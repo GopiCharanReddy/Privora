@@ -32,10 +32,8 @@ export function RoomHeader({ slug, isConnected, userCount }: RoomHeaderProps) {
     <header className="glass sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-border px-4 py-3">
       {/* Left: Brand + Room Info */}
       <div className="flex min-w-0 items-center gap-3">
+        <img src="/favicon.ico" alt="logo" className="h-6 w-6 sm:h-7 sm:w-7 lg:h-[30px] lg:w-[30px]" />
         <div className="flex flex-shrink-0 items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-violet-500/25 bg-violet-500/15">
-            <MessageCircle className="h-4 w-4 text-violet-400" />
-          </div>
           <span className="hidden text-sm font-bold text-foreground sm:block">
             Privora
           </span>
