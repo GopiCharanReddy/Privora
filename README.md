@@ -1,4 +1,4 @@
-![alt text](opengraph-image.jpg)
+![alt text](app/opengraph-image.jpg)
 # Privora
 
 A full-stack real-time chat application featuring instant messaging, secure chat rooms which get deleted once everyone leaves, and a robust background job processing system to ensure high performance
