@@ -6,10 +6,12 @@ import { Send } from "lucide-react"
 interface ChatInputProps {
   onSend: (text: string) => void
   disabled?: boolean
+  onTyping?: () => void
 }
 
-export function ChatInput({ onSend, disabled }: ChatInputProps) {
+export function ChatInput({ onSend, disabled, onTyping }: ChatInputProps) {
   const [value, setValue] = useState("")
+  const [lastTypingEmit, setLastTypingEmit] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleSend = () => {
@@ -27,6 +29,17 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
     }
   }
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(e.target.value)
+    if (onTyping && !disabled && e.target.value.length > 0) {
+      const now = Date.now()
+      if (now - lastTypingEmit > 2000) {
+        onTyping()
+        setLastTypingEmit(now)
+      }
+    }
+  }
+
   return (
     <div className="glass border-t border-border px-4 py-4">
       <div className="mx-auto flex max-w-4xl items-center gap-3">
@@ -35,7 +48,7 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
             id="message-input"
             ref={inputRef}
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={handleChange}
             onKeyDown={handleKey}
             placeholder="Type a message…"
             disabled={disabled}

@@ -18,7 +18,7 @@ interface handleIncomingMessagesI {
 }
 
 interface chatMessage {
-  type: "join_room" | "message"
+  type: "join_room" | "message" | "typing"
   slug: string
   message?: string
   name?: string
@@ -87,6 +87,25 @@ export const handleIncomingMessages = async ({
       )
     } catch (err) {
       console.error("[join_room] Failed to increment room count:", err)
+    }
+    return
+  }
+
+  if (type === "typing" && slug) {
+    const clientData = clients.get(ws)
+    if (!clientData) return
+    try {
+      await publisher.publish(
+        "COMPUTE_UPDATES",
+        JSON.stringify({
+          type: "typing",
+          slug,
+          userId: clientData.id,
+          senderName: clientData.name ?? "Anonymous",
+        })
+      )
+    } catch (error) {
+      console.error("Error: ", error)
     }
     return
   }

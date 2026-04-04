@@ -11,6 +11,7 @@ import { JoinRoomModal } from "@/components/modals/JoinRoomModal"
 import { AnimatePresence } from "motion/react"
 import * as motion from "motion/react-client"
 import { Loader2, MessageCircleOff, AlertTriangle } from "lucide-react"
+import { LoaderOne } from "@/components/ui/loader"
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080"
 
@@ -23,6 +24,9 @@ function RoomChat({ slug, username }: { slug: string; username: string }) {
   const [joined, setJoined] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const msgIdRef = useRef(0)
+
+  const [isTyping, setIsTyping] = useState(false)
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // ── Load historical messages ──────────────────────────────────────────────
   useEffect(() => {
@@ -78,8 +82,20 @@ function RoomChat({ slug, username }: { slug: string; username: string }) {
     const { type, userId, message, slug: msgSlug } = lastMessage
     if (msgSlug && msgSlug !== slug) return
 
-    if (type === "message" && message) {
+    if (type === "typing") {
       const isMe = userId === clientId
+      if (isMe) return
+      setIsTyping(true)
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
+      typingTimeoutRef.current = setTimeout(() => {
+        setIsTyping(false)
+      }, 3000)
+    } else if (type === "message" && message) {
+      const isMe = userId === clientId
+      if (!isMe) {
+        setIsTyping(false)
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
+      }
       if (isMe) return // already added optimistically
       const newMsg: Message = {
         id: `ws-${++msgIdRef.current}`,
@@ -105,6 +121,11 @@ function RoomChat({ slug, username }: { slug: string; username: string }) {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
+
+  // ── Typing Indicator ──────────────────────────────────────────────────────
+  const handleTyping = useCallback(() => {
+    sendMessage({ type: "typing", slug, name: username })
+  }, [slug, username, sendMessage])
 
   // ── Send message ──────────────────────────────────────────────────────────
   const handleSend = useCallback(
@@ -186,10 +207,18 @@ function RoomChat({ slug, username }: { slug: string; username: string }) {
         )}
         <div ref={bottomRef} />
       </div>
-
+      {isTyping && (
+        <div className="mx-auto w-full max-w-4xl px-4 py-4">
+          <LoaderOne />
+        </div>
+      )}
       {/* Input */}
       <div className="mx-auto w-full max-w-4xl">
-        <ChatInput onSend={handleSend} disabled={!isConnected} />
+        <ChatInput
+          onSend={handleSend}
+          disabled={!isConnected}
+          onTyping={handleTyping}
+        />
       </div>
     </div>
   )
