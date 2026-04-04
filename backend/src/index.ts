@@ -17,6 +17,7 @@ const corsOptions = {
 
 const app = express()
 app.use(cors(corsOptions))
+app.options("*", cors(corsOptions))
 const router: express.Router = express.Router()
 const server = http.createServer(app)
 const PORT = process.env.PORT || 8080
