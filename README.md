@@ -159,4 +159,4 @@ Privora/
 - Consider rate limiting for production
 
 ## License
-See LICENSE file for details.
+See [LICENSE](LICENSE) file for details.
