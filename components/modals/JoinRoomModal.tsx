@@ -47,7 +47,7 @@ export function JoinRoomModal({
     setUsername("");
     onClose();
   }
-  if(prefillSlug !== prevSlug) {
+  if (prefillSlug !== prevSlug) {
     setRoomId(prefillSlug || "");
     setPrevSlug(prefillSlug);
   }
@@ -74,7 +74,10 @@ export function JoinRoomModal({
       const res = await axios.post(
         `${BACKEND_URL}/api/v1/rooms/joinRoom`,
         { slug },
-        { validateStatus: () => true }
+        {
+          validateStatus: () => true,
+          withCredentials: true
+        }
       )
       const data = res.data
       if (res.status >= 400) {

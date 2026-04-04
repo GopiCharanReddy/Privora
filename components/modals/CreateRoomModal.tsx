@@ -59,7 +59,10 @@ export function CreateRoomModal({ open, onClose }: CreateRoomModalProps) {
       const res = await axios.post(
         `${BACKEND_URL}/api/v1/rooms/createRoom`,
         { user: name },
-        { validateStatus: () => true }
+        {
+          validateStatus: () => true,
+          withCredentials: true
+        }
       )
       const data = res.data
       if (res.status >= 400) {

@@ -30,7 +30,7 @@ function RoomChat({ slug, username }: { slug: string; username: string }) {
       try {
         const res = await axios.get(
           `${BACKEND_URL}/api/v1/messages/message/${slug}`,
-          { validateStatus: () => true }
+          { validateStatus: () => true, withCredentials: true }
         )
         if (res.status >= 400) {
           setRoomError("Room not found or has been deleted.")
@@ -227,7 +227,7 @@ export default function RoomPage() {
     }
     return false // Default for SSR
   });
-  
+
   // After the modal completes (user wrote their name and joined), update state
   const handleJoinClose = useCallback(() => {
     const stored = sessionStorage.getItem(`user_${slug}`)
